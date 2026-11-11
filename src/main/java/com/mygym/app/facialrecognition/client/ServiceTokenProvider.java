@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
@@ -27,6 +28,7 @@ public class ServiceTokenProvider {
     private final Clock clock;
     private final AtomicReference<IssuedToken> current = new AtomicReference<>();
 
+    @Autowired
     public ServiceTokenProvider(JwtEncoder encoder, @Value("${spring.application.name}") String serviceName) {
         this(encoder, serviceName, Clock.systemUTC());
     }
