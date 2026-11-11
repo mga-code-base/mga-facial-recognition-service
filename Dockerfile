@@ -1,27 +1,21 @@
-# ==============================================================================
-# STAGE 1: Build the Maven JAR artifact
-# ==============================================================================
-FROM maven:3.9.6-eclipse-temurin-17 AS builder
+FROM eclipse-temurin:25-jdk AS build
+WORKDIR /workspace
+COPY mvnw pom.xml ./
+COPY .mvn .mvn
+RUN chmod +x mvnw && ./mvnw -B -q dependency:go-offline
+COPY src src
+RUN ./mvnw -B -q package -DskipTests \
+    && cp "$(ls target/*.jar | grep -v original | head -1)" app.jar \
+    && java -Djarmode=tools -jar app.jar extract --layers --launcher --destination extracted
+
+FROM eclipse-temurin:25-jre
+RUN groupadd --system --gid 10001 mga && useradd --system --uid 10001 --gid mga --no-create-home mga
 WORKDIR /app
-
-# Copy pom.xml and download dependencies (leveraging Docker layer caching)
-COPY pom.xml .
-RUN mvn dependency:go-offline -B
-
-# Copy source code and compile
-COPY src ./src
-RUN mvn clean package -DskipTests
-
-# ==============================================================================
-# STAGE 2: Lightweight Production Runtime Image
-# ==============================================================================
-FROM eclipse-temurin:17-jre-jammy
-WORKDIR /app
-
-# Copy the compiled JAR dynamically regardless of version numbers
-COPY --from=builder /app/target/*.jar app.jar
-
-EXPOSE 8087
-
-# Execute app
-ENTRYPOINT ["java", "-jar", "app.jar"]
+COPY --from=build /workspace/extracted/dependencies/ ./
+COPY --from=build /workspace/extracted/spring-boot-loader/ ./
+COPY --from=build /workspace/extracted/snapshot-dependencies/ ./
+COPY --from=build /workspace/extracted/application/ ./
+USER 10001
+EXPOSE 8088
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError"
+ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]

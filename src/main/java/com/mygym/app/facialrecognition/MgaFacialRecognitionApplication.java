@@ -2,13 +2,10 @@ package com.mygym.app.facialrecognition;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.resilience.annotation.EnableResilientMethods;
 
-@SpringBootApplication(exclude = {
-	    org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration.class, 
-	    org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration.class,
-	    org.springframework.boot.autoconfigure.mongo.MongoReactiveAutoConfiguration.class,
-	    org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration.class
-	})
+@SpringBootApplication
+@EnableResilientMethods
 public class MgaFacialRecognitionApplication {
 
     public static void main(String[] args) {

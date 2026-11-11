@@ -1,8 +1,8 @@
 package com.mygym.app.facialrecognition.service;
 
-import static com.mygym.app.facialrecognition.util.FacialConstants.MEMBER_REST_CLIENT_BEAN;
-import static com.mygym.app.facialrecognition.util.FacialConstants.MEMBER_GET_BY_USERNAME_ENDPOINT;
 import static com.mygym.app.facialrecognition.util.FacialConstants.MEMBER_GET_BY_MEMBERID_ENDPOINT;
+import static com.mygym.app.facialrecognition.util.FacialConstants.MEMBER_GET_BY_USERNAME_ENDPOINT;
+import static com.mygym.app.facialrecognition.util.FacialConstants.MEMBER_REST_CLIENT_BEAN;
 import static com.mygym.app.facialrecognition.util.FacialConstants.MEMBER_UPDATE_FACE_REGIS_ENDPOINT;
 
 import java.io.InputStream;
@@ -18,6 +18,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.Rect;
@@ -30,6 +33,7 @@ import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.resilience.annotation.ConcurrencyLimit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
@@ -45,8 +49,6 @@ import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.ImageFactory;
 import ai.djl.repository.zoo.Criteria;
 import ai.djl.repository.zoo.ZooModel;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 
 /**
  * Service orchestrating facial detection, embedding extraction, and pgvector persistence.
@@ -109,6 +111,7 @@ public class FaceRecognitionService {
     /**
      * Extracts a 512-dimensional embedding vector from an uploaded image file.
      */
+    @ConcurrencyLimit(1)
     public float[] extractEmbeddingsFromFace(MultipartFile file) throws Exception {
         String uniqueDir = System.getProperty("java.io.tmpdir");
         Path uniqueTempPath = Paths.get(uniqueDir, "face_upload_" + UUID.randomUUID().toString() + ".jpg");
@@ -306,6 +309,7 @@ public class FaceRecognitionService {
      * Extracts frames from a video stream and persists calculated face vectors.
      */
     @Transactional
+    @ConcurrencyLimit(2)
     public void processVideoAndRegister(String memberId, MultipartFile videoFile) throws Exception {
         String uniqueDir = System.getProperty("java.io.tmpdir");
         Path tempVideoPath = Paths.get(uniqueDir, "video_upload_" + UUID.randomUUID().toString() + ".mp4");

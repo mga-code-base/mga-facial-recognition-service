@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.2</version>
+		<version>4.0.7</version>
 		<relativePath />
 	</parent>
 
-	<groupId>com.mygym.app.facialrecognition</groupId>
+	<groupId>com.mygym.app</groupId>
 	<artifactId>mga-facial-recognition-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>mga-facial-recognition-service</name>
-	<description>Business Layer Service</description>
+	<description>Face registration and recognition with DJL, FaceNet and pgvector</description>
 
 	<properties>
-		<java.version>17</java.version>
+		<java.version>25</java.version>
+		<spring-cloud.version>2025.1.2</spring-cloud.version>
+		<springdoc.version>3.0.3</springdoc.version>
 		<djl.version>0.31.0</djl.version>
-		<spring-cloud.version>2024.0.0</spring-cloud.version>
 	</properties>
 
 	<dependencyManagement>
@@ -43,10 +43,9 @@
 	</dependencyManagement>
 
 	<dependencies>
-		<!-- Core Spring Boot Engine Layers -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
+			<artifactId>spring-boot-starter-webmvc</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -61,30 +60,41 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-api</artifactId>
-			<version>0.12.5</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-impl</artifactId>
-			<version>0.12.5</version>
-			<scope>runtime</scope>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-jackson</artifactId>
-			<version>0.12.5</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-restclient</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-opentelemetry</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>${springdoc.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.3.2</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-
 			<groupId>com.pgvector</groupId>
 			<artifactId>pgvector</artifactId>
 			<version>0.1.6</version>
@@ -92,10 +102,7 @@
 		<dependency>
 			<groupId>org.hibernate.orm</groupId>
 			<artifactId>hibernate-vector</artifactId>
-			<version>6.6.1.Final</version>
 		</dependency>
-
-		<!-- Deep Learning Toolkits (DJL & PyTorch) -->
 		<dependency>
 			<groupId>ai.djl</groupId>
 			<artifactId>api</artifactId>
@@ -119,8 +126,6 @@
 			<version>2.4.0</version>
 			<scope>runtime</scope>
 		</dependency>
-
-		<!-- Computer Vision Library -->
 		<dependency>
 			<groupId>org.openpnp</groupId>
 			<artifactId>opencv</artifactId>
@@ -131,16 +136,19 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webmvc-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
 	<profiles>
-		<!-- 1. Default Local Development Profile -->
 		<profile>
 			<id>dev</id>
 			<activation>
@@ -153,13 +161,8 @@
 				</dependency>
 			</dependencies>
 		</profile>
-
-		<!-- 2. Kubernetes Standard Production Profile (Drops Eureka client) -->
 		<profile>
 			<id>k8s-prod</id>
-			<dependencies>
-				<!-- Eureka client excluded intentionally for Kubernetes DNS mapping -->
-			</dependencies>
 		</profile>
 	</profiles>
 

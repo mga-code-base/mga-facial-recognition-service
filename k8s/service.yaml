@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mga-facial-recognition-service
+  labels:
+    app: mga-facial-recognition-service
+    app.kubernetes.io/part-of: mga
+spec:
+  type: ClusterIP
+  selector:
+    app: mga-facial-recognition-service
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

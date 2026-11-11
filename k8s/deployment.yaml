@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mga-facial-recognition-service
+  labels:
+    app: mga-facial-recognition-service
+    app.kubernetes.io/name: mga-facial-recognition-service
+    app.kubernetes.io/part-of: mga
+    app.kubernetes.io/component: ai
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: mga-facial-recognition-service
+  template:
+    metadata:
+      labels:
+        app: mga-facial-recognition-service
+        app.kubernetes.io/name: mga-facial-recognition-service
+        app.kubernetes.io/part-of: mga
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "8088"
+    spec:
+      terminationGracePeriodSeconds: 45
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+        - name: mga-facial-recognition-service
+          image: ghcr.io/mga-code-base/mga-facial-recognition-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8088
+          envFrom:
+            - configMapRef:
+                name: mga-platform-config
+            - configMapRef:
+                name: mga-facial-recognition-service-config
+                optional: true
+            - secretRef:
+                name: mga-platform-secrets
+            - secretRef:
+                name: mga-facial-recognition-service-secrets
+                optional: true
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1536Mi
+            limits:
+              memory: 3Gi
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            periodSeconds: 5
+            failureThreshold: 36
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            periodSeconds: 5
+            failureThreshold: 3
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh", "-c", "sleep 10"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]

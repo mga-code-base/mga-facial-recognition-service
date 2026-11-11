@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mga-facial-recognition-service-config
+  labels:
+    app.kubernetes.io/part-of: mga
+data:
+  LOG_FORMAT: "ecs"

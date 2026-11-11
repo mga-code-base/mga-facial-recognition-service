@@ -4,7 +4,7 @@ public class FacialConstants {
 
 	public static final String MEMBER_REST_CLIENT_BEAN = "memberCrudClient";
 	
-	public static final String MEMBER_CRUD_BASE_URL = "http://mga-people-crud-service/crud/members/";
+	public static final String MEMBER_CRUD_PATH = "/crud/members/";
 	
 	public static final String CONTENT_HEADER = "Content-Type";
 	
