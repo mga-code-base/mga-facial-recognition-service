@@ -22,7 +22,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PlatformEndpoints.PUBLIC).permitAll()
-                        .requestMatchers("/api/face", "/api/face/**").hasAnyRole("ADMIN", "TRAINER", "MEMBER")
+                        .requestMatchers("/api/v1/face", "/api/v1/face/**").hasAnyRole("ADMIN", "TRAINER", "MEMBER")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(JwtRoleConverter.create())))
                 .build();

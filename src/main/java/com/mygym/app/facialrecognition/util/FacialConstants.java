@@ -10,9 +10,9 @@ public class FacialConstants {
 	
 	public static final String JSON_HEADER = "application/json";
 	
-	public static final String FACIAL_REQUEST_MAPPING = "/api/face";
+	public static final String FACIAL_REQUEST_MAPPING = "/api/v1/face";
 	
-	public static final String FACIAL_REQUEST_MAPPING_SAFETY = "/api/face/";
+	public static final String FACIAL_REQUEST_MAPPING_SAFETY = "/api/v1/face/";
 	
 	public static final String MEMBER_GET_BY_USERNAME_ENDPOINT = "/username/{username}";
 	
